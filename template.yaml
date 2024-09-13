@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+
+Resources:
+  UsersTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "ng-user-table"
+      AttributeDefinitions:
+        - AttributeName: email
+          AttributeType: S # String type
+
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH # Partition key
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      Auth:
+        DefaultAuthorizer: MyLambdaTokenAuthorizer
+        Authorizers:
+          MyLambdaTokenAuthorizer:
+            FunctionArn: !GetAtt MyAuthFunction.Arn
+
+  HelloFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.handler # Assuming file is index.mjs
+      Runtime: nodejs20.x
+      CodeUri: ./hello-world
+      Events:
+        HelloAPI:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /hello
+            Method: GET
+
+  MyAuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./authorizer
+      Handler: auth.handler # Assuming file is authorizer.mjs
+      Runtime: nodejs20.x
+
+  MyLoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./Login
+      Runtime: nodejs20.x
+      Handler: login.handler # Assuming file is login.mjs
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        LoginApi:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: POST
+
+Outputs:
+  ApiUrl:
+    Description: "API endpoint URL for Dev environment"
+    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/dev/"
+  LoginUrl:
+    Description: "API URL for login"
+    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/dev/login"
