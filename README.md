@@ -1,4 +1,4 @@
-# lambda-auth
+# Lambda-authorizer-SAM
 
 This project contains source code of implementation of Authentication in lambda using Custom Authorizer(Lambda Authorizer).
 The flow of events are-
