@@ -8,11 +8,11 @@ Resources:
       TableName: "ng-user-table"
       AttributeDefinitions:
         - AttributeName: email
-          AttributeType: S # String type
+          AttributeType: S
 
       KeySchema:
         - AttributeName: email
-          KeyType: HASH # Partition key
+          KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
@@ -29,7 +29,7 @@ Resources:
   HelloFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: app.handler # Assuming file is index.mjs
+      Handler: app.handler
       Runtime: nodejs20.x
       CodeUri: ./hello-world
       Events:
@@ -44,7 +44,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./authorizer
-      Handler: auth.handler # Assuming file is authorizer.mjs
+      Handler: auth.handler
+      Layers:
+        - !Ref LambdaDependencies
       Runtime: nodejs20.x
 
   MyLoginFunction:
@@ -52,7 +54,9 @@ Resources:
     Properties:
       CodeUri: ./Login
       Runtime: nodejs20.x
-      Handler: login.handler # Assuming file is login.mjs
+      Handler: login.handler
+      Layers:
+        - !Ref LambdaDependencies
       Policies:
         - AmazonDynamoDBFullAccess
       Events:
@@ -61,7 +65,15 @@ Resources:
           Properties:
             Path: /login
             Method: POST
-
+  LambdaDependencies:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: sam-dependencies
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - nodejs20.x
+      LicenseInfo: "MIT"
+      RetentionPolicy: Retain
 Outputs:
   ApiUrl:
     Description: "API endpoint URL for Dev environment"
