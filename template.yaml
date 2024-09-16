@@ -26,7 +26,7 @@ Resources:
           MyLambdaTokenAuthorizer:
             FunctionArn: !GetAtt MyAuthFunction.Arn
 
-  HelloFunction:
+  SuccessLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: app.handler
@@ -73,7 +73,12 @@ Resources:
       CompatibleRuntimes:
         - nodejs20.x
       LicenseInfo: "MIT"
-      RetentionPolicy: Retain
+      RetentionPolicy: delete
+    Metadata:
+      BuildMethod: nodejs20.x
+      BuildProperties:
+        PackageManager: npm
+        LayerPackaging: true
 Outputs:
   ApiUrl:
     Description: "API endpoint URL for Dev environment"
