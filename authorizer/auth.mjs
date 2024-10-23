@@ -10,18 +10,16 @@ export const handler = async (event) => {
     console.log(decoded);
 
     return {
-      principalId: "user",
+      principalId: decoded.email,
       policyDocument: generatePolicyDocument("Allow", event.methodArn),
+      context: {
+        email: decoded.email,
+        role: decoded.role,
+      },
     };
   } catch (err) {
     console.error("Token verification failed:", err);
-    return {
-      principalId: "user",
-      policyDocument: generatePolicyDocument("Deny", event.methodArn),
-      "context": {
-      "stringKey": "Login Expired. Login again please",
-    },
-    };
+    throw new Error("Unauthorized");
   }
 };
 

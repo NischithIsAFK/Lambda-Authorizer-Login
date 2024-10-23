@@ -38,9 +38,13 @@ export const handler = async (event) => {
     // Verifying the password
     if (data.Item.password.S === password) {
       // Sign a JWT token for the user
-      const token = jwt.sign({ email: data.Item.email.S }, JWT_SECRET, {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        { email: data.Item.email.S, role: data.Item.S },
+        JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
 
       console.log("JWT token generated: ", token);
 

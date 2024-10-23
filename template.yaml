@@ -13,9 +13,7 @@ Resources:
       KeySchema:
         - AttributeName: email
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+      BillingMode: PAY_PER_REQUEST
   MyApi:
     Type: AWS::Serverless::Api
     Properties:
